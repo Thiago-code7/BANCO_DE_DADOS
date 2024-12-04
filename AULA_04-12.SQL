@@ -1,0 +1,71 @@
+
+-- tabela de usuarios
+ CREATE TABLE if NOT EXISTS USUARIO(
+   ID SERIAL PRIMARY KEY,
+   NOME VARCHAR(100) NOT NULL,
+  EMAIL VARCHAR(50)  NOT NULL UNIQUE,
+   DATA_CADASTRO TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+  
+   CREATE TABLE if NOT EXISTS EDITORA(
+   ID SERIAL PRIMARY KEY,
+   NOME VARCHAR(100) NOT NULL
+   );
+   
+    CREATE TABLE if NOT EXISTS GENERO(
+    ID SERIAL PRIMARY KEY,
+    NOME VARCHAR(100) NOT NULL UNIQUE
+    );
+    
+     CREATE TABLE if NOT EXISTS LIVRO(
+     ID SERIAL PRIMARY KEY,
+     TITULO VARCHAR(150) NOT NULL,
+     QUANTIDADE_DISPONIVEL INT NOT NULL CHECK(QUANTIDADE_DISPONIVEL >=0 ),
+     ID_EDITORA INT NOT NULL,
+     ID_GENERO INT NOT NULL,
+      CONSTRAINT fk_EDITORA FOREIGN KEY(ID_EDITORA) REFERENCES EDITORA(ID) ON DELETE CASCADE,
+      CONSTRAINT fk_GENERO FOREIGN KEY(ID_GENERO) REFERENCES GENERO(ID) ON DELETE CASCADE
+      );
+     
+      CREATE TABLE if NOT EXISTS EMPRESTIMO(
+      ID_EMPRESTIMO INT NOT NULL,
+      ID_LIVRO INT NOT NULL,
+      ID_USUARIO INT NOT NULL,
+      DATA_EMPRESTIMO DATE NOT NULL,
+      DATA_DEVOLUCAO TIMESTAMP NOT NULL,
+      CONSTRAINT fk_USUARIO FOREIGN KEY(ID_USUARIO) REFERENCES USUARIO(ID) ON DELETE CASCADE,
+      CONSTRAINT fk_LIVRO FOREIGN KEY(ID_LIVRO) REFERENCES LIVRO(ID) ON DELETE CASCADE
+      );
+      
+      
+      -- \dt;
+      -- \d USUARIO;
+      -- \d EDITORA;
+      -- \d GENERO;
+      -- \d LIVRO;
+      -- \d EMPRESTIMO;
+     
+     --Adicionar um campo para armazenar o telefone dos usuarios
+     ALTER TABLE USUARIO ADD COLUMN TELEFONE CHAR(11) DEFAULT 'NENHUM';
+    -- \d USUARIO;
+     
+     --Altere o tamanho do campo titulo na tabela livros para comportar ate 200 cacateres.
+     ALTER TABLE LIVRO ALTER COLUMN TITULO TYPE VARCHAR(200);
+    -- \d LIVRO;
+     
+    -- Remova o campo data cadastro da tabela usuarios, pois ele não será mais utilizado.
+    ALTER TABLE USUARIO DROP COLUMN DATA_CADASTRO;
+    -- \d USUARIO;
+    
+    --Garanta que o mesmo titulo de livro não possa ser registrado na mesma editora.
+    ALTER TABLE LIVRO ADD CONSTRAINT UQ_LIVRO_TITULO_EDITORA UNIQUE(TITULO, ID_EDITORA);
+    -- \d LIVRO;
+    
+    --Garantir que as datas de emprestimo e devolução sejam distintas e validas.
+    ALTER TABLE EMPRESTIMO ADD CONSTRAINT CHK_DATA_DEVOLUCAO CHECK(DATA_DEVOLUCAO >= DATA_EMPRESTIMO);
+    -- \d EMPRESTIMO;
+  
+    INSERT INTO USUARIO(ID, NOME, EMAIL, TELEFONE)
+    VALUES(1, 'Valtemir', 'valtemir@senac.br', '84988776655'), (2, 'Valtemir Junior', 'Valtemirjr@senac.br');
+    
+    SELECT *FROM USUARIO;
